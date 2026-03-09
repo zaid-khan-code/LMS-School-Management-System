@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Search, Plus, Filter, GraduationCap, TrendingUp, TrendingDown } from "lucide-react";
+import { Search, Plus, Filter, GraduationCap, TrendingUp, TrendingDown, Eye } from "lucide-react";
 
 const students = [
   { id: "1", name: "Emma Wilson", studentId: "STU-001", class: "Grade 10A", gpa: 3.8, attendance: 96, status: "active" },
@@ -58,15 +59,16 @@ export default function StudentsPage() {
       </div>
 
       <div className="rounded-xl border overflow-hidden">
-        <div className="bg-muted/50 grid grid-cols-6 gap-4 px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <div className="bg-muted/50 grid grid-cols-7 gap-4 px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           <div className="col-span-2">Student</div>
           <div>Class</div>
           <div>GPA</div>
           <div>Attendance</div>
           <div>Status</div>
+          <div>Actions</div>
         </div>
         {filtered.map((s, i) => (
-          <div key={s.id} className={`grid grid-cols-6 gap-4 px-4 py-3 items-center hover:bg-muted/30 transition-colors ${i > 0 ? "border-t" : ""}`}>
+          <div key={s.id} className={`grid grid-cols-7 gap-4 px-4 py-3 items-center hover:bg-muted/30 transition-colors ${i > 0 ? "border-t" : ""}`}>
             <div className="col-span-2 flex items-center gap-2.5">
               <Avatar className="h-8 w-8 shrink-0">
                 <AvatarFallback className="text-xs bg-primary/10 text-primary">
@@ -74,7 +76,9 @@ export default function StudentsPage() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium">{s.name}</p>
+                <Link href={`/dashboard/students/${s.id}`} className="text-sm font-medium hover:text-primary hover:underline underline-offset-2 transition-colors">
+                  {s.name}
+                </Link>
                 <p className="text-xs text-muted-foreground">{s.studentId}</p>
               </div>
             </div>
@@ -93,6 +97,14 @@ export default function StudentsPage() {
               <Badge variant={s.status === "active" ? "success" : "destructive"} className="text-xs">
                 {s.status === "active" ? "Active" : "At Risk"}
               </Badge>
+            </div>
+            <div>
+              <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" asChild>
+                <Link href={`/dashboard/students/${s.id}`}>
+                  <Eye className="h-3 w-3" />
+                  Profile
+                </Link>
+              </Button>
             </div>
           </div>
         ))}
