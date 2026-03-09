@@ -11,18 +11,19 @@ import {
   LayoutDashboard,
   BookOpen,
   Users,
-  Calendar,
   BarChart3,
   Settings,
   GraduationCap,
   MessageSquare,
-  Bell,
-  FileText,
-  Award,
   ClipboardList,
-  Building2,
   ChevronLeft,
   ChevronRight,
+  Brain,
+  UserCheck,
+  CalendarDays,
+  CreditCard,
+  FileCheck,
+  Megaphone,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -49,30 +50,26 @@ const defaultNavigation: SidebarSection[] = [
     items: [
       { title: 'Courses', href: '/dashboard/courses', icon: BookOpen },
       { title: 'Assignments', href: '/dashboard/assignments', icon: ClipboardList, badge: 3 },
-      { title: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
+      { title: 'Quizzes', href: '/dashboard/quiz', icon: Brain },
+      { title: 'Gradebook', href: '/dashboard/gradebook', icon: BarChart3 },
     ],
   },
   {
-    title: 'People',
+    title: 'School',
     items: [
       { title: 'Students', href: '/dashboard/students', icon: Users },
       { title: 'Teachers', href: '/dashboard/teachers', icon: GraduationCap },
-      { title: 'Staff', href: '/dashboard/staff', icon: Building2 },
-    ],
-  },
-  {
-    title: 'Analytics',
-    items: [
-      { title: 'Reports', href: '/dashboard/reports', icon: BarChart3 },
-      { title: 'Attendance', href: '/dashboard/attendance', icon: FileText },
-      { title: 'Grades', href: '/dashboard/grades', icon: Award },
+      { title: 'Attendance', href: '/dashboard/attendance', icon: UserCheck },
+      { title: 'Timetable', href: '/dashboard/timetable', icon: CalendarDays },
+      { title: 'Fees', href: '/dashboard/fees', icon: CreditCard },
+      { title: 'Exams', href: '/dashboard/exams', icon: FileCheck },
     ],
   },
   {
     title: 'Communication',
     items: [
+      { title: 'Announcements', href: '/dashboard/announcements', icon: Megaphone },
       { title: 'Messages', href: '/dashboard/messages', icon: MessageSquare, badge: 5 },
-      { title: 'Notifications', href: '/dashboard/notifications', icon: Bell },
     ],
   },
   {
