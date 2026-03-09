@@ -1,8 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Clock, MapPin, Download, FileText } from "lucide-react";
-
+import { CalendarDays, Clock, MapPin, Download, FileText, TrendingUp } from "lucide-react";
 const upcomingExams = [
   { id: "1", subject: "Advanced Mathematics", date: "Dec 15, 2025", time: "09:00 - 11:00", room: "Hall B, Seat 24", status: "upcoming", type: "Final Exam" },
   { id: "2", subject: "Physics", date: "Dec 12, 2025", time: "13:00 - 14:30", room: "Room 204, Seat 12", status: "upcoming", type: "Mid-Term" },
@@ -76,24 +75,40 @@ export default function ExamsPage() {
           <div className="space-y-3">
             {completedExams.map((exam) => {
               const pct = Math.round((exam.score / exam.maxScore) * 100);
+              const gradeColor =
+                exam.grade.startsWith("A") ? "border-green-500 text-green-600 dark:text-green-400" :
+                exam.grade.startsWith("B") ? "border-blue-500 text-blue-600 dark:text-blue-400" :
+                "border-orange-500 text-orange-600 dark:text-orange-400";
+              const barColor =
+                pct >= 90 ? "bg-green-500" : pct >= 75 ? "bg-blue-500" : "bg-orange-500";
               return (
-                <div key={exam.id} className="flex items-center justify-between p-4 rounded-xl border">
-                  <div>
-                    <h3 className="font-semibold text-sm">{exam.subject}</h3>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                      <span>{exam.type}</span>
-                      <span>{exam.date}</span>
+                <div key={exam.id} className="p-4 rounded-xl border space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-sm">{exam.subject}</h3>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                        <span>{exam.type}</span>
+                        <span>{exam.date}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-sm font-semibold">{exam.score}/{exam.maxScore}</p>
+                        <p className="text-xs text-muted-foreground">{pct}%</p>
+                      </div>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 ${gradeColor}`}>
+                        {exam.grade}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className="text-sm font-semibold">{exam.score}/{exam.maxScore}</p>
-                      <p className="text-xs text-muted-foreground">{pct}%</p>
+                  <div className="space-y-1">
+                    <div className={`h-1.5 w-full rounded-full bg-muted overflow-hidden`}>
+                      <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
                     </div>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 ${
-                      exam.grade.startsWith("A") ? "border-green-500 text-green-500" :
-                      "border-blue-500 text-blue-500"
-                    }`}>{exam.grade}</div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      {pct >= 90 ? "Excellent" : pct >= 75 ? "Good" : "Needs improvement"}
+                    </p>
                   </div>
                 </div>
               );
