@@ -9,7 +9,7 @@ import {
   GraduationCap, LayoutDashboard, BookOpen, ClipboardList, Brain,
   BarChart3, Users, UserCheck, Calendar, DollarSign, FileText,
   Bell, Library, Briefcase, Shield, Settings, ChevronLeft,
-  ChevronRight, Bot,
+  ChevronRight, Bot, MessageSquare,
 } from "lucide-react";
 
 interface NavLink {
@@ -54,9 +54,16 @@ const navSections: NavSection[] = [
     ],
   },
   {
+    title: "Communication",
+    links: [
+      { href: "/dashboard/notifications", label: "Notifications", icon: Bell, badge: 3 },
+      { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, badge: 1 },
+      { href: "/dashboard/announcements", label: "Announcements", icon: Bell },
+    ],
+  },
+  {
     title: "Admin",
     links: [
-      { href: "/dashboard/announcements", label: "Announcements", icon: Bell },
       { href: "/dashboard/hr", label: "HR & Payroll", icon: Briefcase },
       { href: "/dashboard/reports", label: "Reports", icon: BarChart3 },
       { href: "/dashboard/security", label: "Security Logs", icon: Shield },
