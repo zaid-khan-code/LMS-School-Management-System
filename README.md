@@ -33,12 +33,12 @@
 | **Assignments** | File upload, text submission, teacher feedback, grading |
 | **Quiz Engine** | Timed quizzes, anti-cheat tab-switch detection, MCQ flow, instant results |
 | **Gradebook** | GPA calculator, bar chart visualisation, per-course breakdown |
-| **AI Tutor** | GPT-4o powered chat tutor with subject selector and conversation history |
+| **AI Tutor** | Gemini powered chat tutor with subject selector and conversation history |
 
 ### 🤖 AI Features
 | Feature | Details |
 |---------|---------|
-| **AI Tutor Chat** | Subject-aware chatbot powered by the OpenAI API |
+| **AI Tutor Chat** | Subject-aware chatbot powered by the Google Gemini API |
 | **Lesson Plan Generator** | Auto-generate weekly lesson plans from curriculum objectives |
 | **Quiz Generator** | Create MCQ quizzes from any topic in seconds |
 | **Essay Grader** | AI-assisted essay scoring with rubric feedback |
@@ -210,7 +210,7 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL (e.g. `https://abc.supabase.co`) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only, never expose client-side) |
-| `OPENAI_API_KEY` | OpenAI API key for AI tutor, quiz generator, and essay grader |
+| `GEMINI_API_KEY` | Google Gemini API key for AI tutor, quiz generator, and essay grader |
 | `NEXT_PUBLIC_APP_URL` | Your deployment URL (e.g. `http://localhost:3000`) |
 
 ### 3. Set Up the Database
@@ -313,7 +313,7 @@ POST /api/ai
   Body: { type: "tutor"|"lesson_plan"|"quiz_generate"|"grade_essay"|"study_plan", prompt, subject?, grade_level? }
 ```
 
-> ⚠️ Replace `OPENAI_API_KEY` in `.env.local` to activate AI features.
+> ⚠️ Replace `GEMINI_API_KEY` in `.env.local` to activate AI features.
 
 ---
 

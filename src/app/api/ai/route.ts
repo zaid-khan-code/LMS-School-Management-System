@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const AIRequestSchema = z.object({
   type: z.enum(["tutor", "lesson_plan", "quiz_generate", "grade_essay", "study_plan"]),
@@ -10,6 +11,14 @@ const AIRequestSchema = z.object({
     student_id: z.string().optional(),
   }).optional(),
 });
+
+const systemPrompts: Record<string, string> = {
+  tutor: "You are an AI tutor for students. Provide clear, step-by-step explanations. Use examples and analogies to help students understand concepts.",
+  lesson_plan: "You are an educational curriculum designer. Create detailed, structured lesson plans with objectives, activities, and assessment criteria.",
+  quiz_generate: "You are a quiz generator for students. Create relevant quiz questions with multiple choice options and indicate the correct answers.",
+  grade_essay: "You are an essay grading assistant. Provide constructive feedback including strengths, areas for improvement, and a suggested grade.",
+  study_plan: "You are a study plan creator. Create personalized, week-by-week study plans with clear milestones and recommended resources.",
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,27 +32,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { type, message } = parsed.data;
+    const { type, message, context } = parsed.data;
 
-    // In production: call OpenAI API
-    // const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    // const completion = await openai.chat.completions.create({...});
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "Gemini API key is not configured. Set GEMINI_API_KEY in environment variables." },
+        { status: 500 }
+      );
+    }
 
-    const responses: Record<string, string> = {
-      tutor: `As your AI tutor, here is help with: "${message}"\n\nThis is a demo response. Connect your OpenAI API key in environment variables (OPENAI_API_KEY) to activate GPT-4o powered responses.`,
-      lesson_plan: `Lesson Plan for: "${message}"\n\n**Objectives:** ...\n**Activities:** ...\n**Assessment:** ...\n\nConnect OpenAI API for full AI-generated lesson plans.`,
-      quiz_generate: `Quiz questions for: "${message}"\n\n1. Question 1...\n2. Question 2...\n\nConnect OpenAI API for AI-generated quizzes.`,
-      grade_essay: `Essay feedback for submission...\n\nStrengths: ...\nAreas for improvement: ...\n\nConnect OpenAI API for detailed AI grading.`,
-      study_plan: `Study plan based on your request: "${message}"\n\nWeek 1: ...\nWeek 2: ...\n\nConnect OpenAI API for personalized AI study plans.`,
-    };
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const systemPrompt = systemPrompts[type] || systemPrompts.tutor;
+    const contextInfo = context
+      ? `\nContext: Subject: ${context.subject || "General"}, Grade: ${context.grade || "Not specified"}`
+      : "";
+
+    const prompt = `${systemPrompt}${contextInfo}\n\nStudent's request: ${message}`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
 
     return NextResponse.json({
       type,
-      response: responses[type] || responses.tutor,
+      response,
       generated_at: new Date().toISOString(),
-      model: "gpt-4o (demo mode)",
+      model: "gemini-2.0-flash",
     });
-  } catch {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  } catch (error: unknown) {
+    console.error("AI API error:", error);
+    const message =
+      error instanceof Error && error.message.includes("API_KEY")
+        ? "Invalid Gemini API key. Please check your GEMINI_API_KEY configuration."
+        : error instanceof Error && error.message.includes("quota")
+          ? "Gemini API quota exceeded. Please try again later."
+          : "Failed to generate AI response. Please try again.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

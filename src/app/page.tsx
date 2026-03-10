@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 const features = [
-  { icon: Brain, title: "AI-Powered Tutoring", description: "Personalized AI tutor for every student. GPT-4o powered chatbot that knows your curriculum, learning style, and weak areas.", color: "text-purple-500", bg: "bg-purple-500/10" },
+  { icon: Brain, title: "AI-Powered Tutoring", description: "Personalized AI tutor for every student. Gemini powered chatbot that knows your curriculum, learning style, and weak areas.", color: "text-purple-500", bg: "bg-purple-500/10" },
   { icon: Users, title: "Multi-Role Portals", description: "Six dedicated portals for Super Admins, School Admins, Teachers, Students, Parents, and Staff — each with role-specific features.", color: "text-blue-500", bg: "bg-blue-500/10" },
   { icon: BookOpen, title: "Course Management", description: "Rich course builder with video, PDFs, slides, and interactive quizzes. Drag-and-drop content ordering with progress tracking.", color: "text-green-500", bg: "bg-green-500/10" },
   { icon: BarChart3, title: "Advanced Analytics", description: "Real-time dashboards showing student performance, attendance trends, fee collection, and predictive risk alerts.", color: "text-orange-500", bg: "bg-orange-500/10" },
@@ -70,7 +70,7 @@ export default function LandingPage() {
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 text-balance">
             An enterprise AI-powered LMS built for the modern era. Six role-specific portals,
-            GPT-4o tutoring, Stripe payments, real-time analytics, and bank-grade security —
+            Gemini AI tutoring, Stripe payments, real-time analytics, and bank-grade security —
             all in one beautiful platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -126,7 +126,7 @@ export default function LandingPage() {
             <div>
               <Badge className="mb-4">AI-Powered Features</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                GPT-4o Working for Every Learner
+                Gemini AI Working for Every Learner
               </h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
                 Our AI engine doesn&apos;t just answer questions — it knows each student&apos;s curriculum,
