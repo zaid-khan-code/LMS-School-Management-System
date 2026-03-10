@@ -61,8 +61,14 @@ export async function POST(request: NextRequest) {
       generated_at: new Date().toISOString(),
       model: "gemini-2.0-flash",
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("AI API error:", error);
-    return NextResponse.json({ error: "Failed to generate AI response" }, { status: 500 });
+    const message =
+      error instanceof Error && error.message.includes("API_KEY")
+        ? "Invalid Gemini API key. Please check your GEMINI_API_KEY configuration."
+        : error instanceof Error && error.message.includes("quota")
+          ? "Gemini API quota exceeded. Please try again later."
+          : "Failed to generate AI response. Please try again.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
