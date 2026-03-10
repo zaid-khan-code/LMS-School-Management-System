@@ -343,6 +343,18 @@ Or deploy to [Vercel](https://vercel.com) with a single click:
 
 ---
 
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
+- Branching strategy (`main` / `develop` / `feature/*` / `fix/*`)
+- **How to merge branches** — via GitHub Pull Requests or the Git CLI
+- Resolving merge conflicts
+- Branch naming conventions
+- Commit message guidelines (Conventional Commits)
+
+---
+
 ## 📝 License
 
 MIT — feel free to use for personal or commercial projects.
