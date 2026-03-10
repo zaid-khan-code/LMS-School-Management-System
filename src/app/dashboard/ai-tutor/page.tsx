@@ -39,7 +39,7 @@ function getAIResponse(msg: string): string {
   const lower = msg.toLowerCase();
   if (lower.includes("integrat")) return aiResponses.integration;
   if (lower.includes("newton") || lower.includes("second law")) return aiResponses.newton;
-  return `Great question! Let me help you understand: "${msg}"\n\nIn a fully connected system, this would call the GPT-4o API to give you a detailed, personalized explanation based on your current curriculum and learning history. The response would include:\n\n• Step-by-step explanation\n• Worked examples\n• Related concepts\n• Practice problems\n\nConnect your OpenAI API key in Settings to activate the AI tutor!`;
+  return `Great question! Let me help you understand: "${msg}"\n\nIn a fully connected system, this would call the Gemini API to give you a detailed, personalized explanation based on your current curriculum and learning history. The response would include:\n\n• Step-by-step explanation\n• Worked examples\n• Related concepts\n• Practice problems\n\nConfigure your Gemini API key in Settings to activate the AI tutor!`;
 }
 
 export default function AITutorPage() {
@@ -47,7 +47,7 @@ export default function AITutorPage() {
     {
       id: "0",
       role: "assistant",
-      content: "👋 Hi! I'm your AI tutor powered by GPT-4o. I know your curriculum, your past performance, and I'm here to help you understand any topic. What would you like to learn today?",
+      content: "👋 Hi! I'm your AI tutor powered by Gemini. I know your curriculum, your past performance, and I'm here to help you understand any topic. What would you like to learn today?",
       timestamp: new Date(),
     },
   ]);
@@ -83,7 +83,7 @@ export default function AITutorPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2">
-              AI Tutor <Badge variant="secondary"><Sparkles className="h-3 w-3 mr-1" />GPT-4o</Badge>
+              AI Tutor <Badge variant="secondary"><Sparkles className="h-3 w-3 mr-1" />Gemini</Badge>
             </h1>
             <p className="text-xs text-muted-foreground">Personalized to your curriculum & learning style</p>
           </div>
