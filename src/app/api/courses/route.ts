@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
 
 const CreateCourseSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
@@ -11,25 +12,59 @@ const CreateCourseSchema = z.object({
 
 // GET /api/courses - List courses
 export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const subject = searchParams.get("subject");
   const grade = searchParams.get("grade");
 
   // Demo data — replace with Supabase query in production
   const courses = [
-    { id: "1", title: "Advanced Mathematics", subject: "Mathematics", grade_level: "Grade 10", is_published: true, created_at: new Date().toISOString() },
-    { id: "2", title: "English Literature", subject: "English", grade_level: "Grade 11", is_published: true, created_at: new Date().toISOString() },
+    {
+      id: "1",
+      title: "Advanced Mathematics",
+      subject: "Mathematics",
+      grade_level: "Grade 10",
+      is_published: true,
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "2",
+      title: "English Literature",
+      subject: "English",
+      grade_level: "Grade 11",
+      is_published: true,
+      created_at: new Date().toISOString(),
+    },
   ].filter((c) => {
     if (subject && c.subject !== subject) return false;
     if (grade && c.grade_level !== grade) return false;
     return true;
   });
 
-  return NextResponse.json({ data: courses, total: courses.length });
+  const response = NextResponse.json({ data: courses, total: courses.length });
+  response.headers.set("X-RateLimit-Limit", "100");
+  return response;
 }
 
 // POST /api/courses - Create course
 export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const parsed = CreateCourseSchema.safeParse(body);
@@ -37,7 +72,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -50,8 +85,13 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    return NextResponse.json({ data: course }, { status: 201 });
+    const response = NextResponse.json({ data: course }, { status: 201 });
+    response.headers.set("X-RateLimit-Limit", "100");
+    return response;
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 }

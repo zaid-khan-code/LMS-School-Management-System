@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
 
 // ── Validation schemas ────────────────────────────────────────────────────────
 
 const CreateStudentSchema = z.object({
-  full_name: z.string().min(2, "Full name must be at least 2 characters").max(100),
+  full_name: z
+    .string()
+    .min(2, "Full name must be at least 2 characters")
+    .max(100),
   email: z.string().email("Invalid email address"),
   grade_level: z.string().min(1, "Grade level is required"),
   guardian_name: z.string().max(100).optional(),
   guardian_phone: z.string().max(20).optional(),
-  date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD").optional(),
+  date_of_birth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD")
+    .optional(),
   gender: z.enum(["male", "female", "other", "prefer_not_to_say"]).optional(),
   address: z.string().max(500).optional(),
 });
@@ -112,6 +119,15 @@ const students = [
 // ── GET /api/students ─────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
 
   const search = searchParams.get("search")?.toLowerCase() ?? "";
@@ -124,7 +140,12 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(100, Math.max(1, parseInt(limitStr, 10) || 20));
 
   let filtered = students.filter((s) => {
-    if (search && !s.full_name.toLowerCase().includes(search) && !s.email.toLowerCase().includes(search)) return false;
+    if (
+      search &&
+      !s.full_name.toLowerCase().includes(search) &&
+      !s.email.toLowerCase().includes(search)
+    )
+      return false;
     if (grade && s.grade_level !== grade) return false;
     if (atRisk === "true" && !s.at_risk) return false;
     if (atRisk === "false" && s.at_risk) return false;
@@ -135,7 +156,7 @@ export async function GET(request: NextRequest) {
   const start = (page - 1) * limit;
   filtered = filtered.slice(start, start + limit);
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     data: filtered,
     meta: {
       total,
@@ -144,11 +165,22 @@ export async function GET(request: NextRequest) {
       pages: Math.ceil(total / limit),
     },
   });
+  response.headers.set("X-RateLimit-Limit", "100");
+  return response;
 }
 
 // ── POST /api/students ────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const parsed = CreateStudentSchema.safeParse(body);
@@ -156,7 +188,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -173,15 +205,29 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    return NextResponse.json({ data: student }, { status: 201 });
+    const response = NextResponse.json({ data: student }, { status: 201 });
+    response.headers.set("X-RateLimit-Limit", "100");
+    return response;
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 }
 
 // ── PATCH /api/students — bulk status update ─────────────────────────────────
 
 export async function PATCH(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const BulkSchema = z.object({
@@ -193,16 +239,21 @@ export async function PATCH(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // In production: batch update in Supabase
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: `Updated ${parsed.data.ids.length} student(s)`,
       updated_ids: parsed.data.ids,
     });
+    response.headers.set("X-RateLimit-Limit", "100");
+    return response;
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 }

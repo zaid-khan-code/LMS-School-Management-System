@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
 
 // ── Validation schemas ────────────────────────────────────────────────────────
 
@@ -69,6 +70,15 @@ const notifications = [
 // ── GET /api/notifications ────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
 
   const userId = searchParams.get("user_id") ?? "demo-user";
@@ -88,11 +98,13 @@ export async function GET(request: NextRequest) {
   });
 
   const total = filtered.length;
-  const unreadCount = notifications.filter((n) => n.user_id === userId && !n.read).length;
+  const unreadCount = notifications.filter(
+    (n) => n.user_id === userId && !n.read,
+  ).length;
   const start = (page - 1) * limit;
   filtered = filtered.slice(start, start + limit);
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     data: filtered,
     meta: {
       total,
@@ -102,11 +114,22 @@ export async function GET(request: NextRequest) {
       pages: Math.ceil(total / limit),
     },
   });
+  response.headers.set("X-RateLimit-Limit", "100");
+  return response;
 }
 
 // ── POST /api/notifications — create (used by server-side triggers) ────────────
 
 export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const parsed = CreateNotificationSchema.safeParse(body);
@@ -114,7 +137,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -126,15 +149,29 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    return NextResponse.json({ data: notification }, { status: 201 });
+    const response = NextResponse.json({ data: notification }, { status: 201 });
+    response.headers.set("X-RateLimit-Limit", "100");
+    return response;
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 }
 
 // ── PATCH /api/notifications — mark read/unread ───────────────────────────────
 
 export async function PATCH(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const parsed = MarkReadSchema.safeParse(body);
@@ -142,23 +179,37 @@ export async function PATCH(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // In production: update rows in Supabase
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: `Marked ${parsed.data.ids.length} notification(s) as ${parsed.data.read ? "read" : "unread"}`,
       updated_ids: parsed.data.ids,
     });
+    response.headers.set("X-RateLimit-Limit", "100");
+    return response;
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 }
 
 // ── DELETE /api/notifications — delete by IDs ─────────────────────────────────
 
 export async function DELETE(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (!user || authError) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const DeleteSchema = z.object({ ids: z.array(z.string()).min(1) });
@@ -167,16 +218,21 @@ export async function DELETE(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // In production: delete from Supabase
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: `Deleted ${parsed.data.ids.length} notification(s)`,
       deleted_ids: parsed.data.ids,
     });
+    response.headers.set("X-RateLimit-Limit", "100");
+    return response;
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 }
